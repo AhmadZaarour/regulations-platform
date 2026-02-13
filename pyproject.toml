@@ -32,6 +32,10 @@ fix = true
 select = ["E", "F", "I", "B", "UP", "SIM"]
 ignore = []
 
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["Depends", "fastapi.Depends", "fastapi.params.Depends"]
+
+
 [tool.mypy]
 python_version = "3.11"
 strict = true
