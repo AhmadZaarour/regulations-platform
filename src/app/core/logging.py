@@ -18,7 +18,16 @@ class JsonFormatter(logging.Formatter):
             "msg": record.getMessage(),
         }
         # Attach common extras if present
-        for key in ("request_id", "user_id"):
+        for key in (
+            "request_id",
+            "user_id",
+            "method",
+            "path",
+            "status_code",
+            "duration_ms",
+            "run_id",
+            "job_id",
+        ):
             if hasattr(record, key):
                 payload[key] = getattr(record, key)
         if record.exc_info:

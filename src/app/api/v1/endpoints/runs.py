@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from typing import cast
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user, get_db
 from app.models.schemas.runs import EgressStairsInput, RunCreateResponse, RunResultResponse
 from app.models.user import User
+from app.services.audit_service import create_audit_log
 from app.services.jobs import execute_regulation_run
 from app.services.queue import runs_queue
 from app.services.run_service import attach_job_id, create_regulation_run, get_regulation_run
@@ -18,6 +19,7 @@ router = APIRouter()
 @router.post("", response_model=RunCreateResponse)  # type: ignore[misc]
 def create_run(
     payload: EgressStairsInput,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> RunCreateResponse:
@@ -30,6 +32,19 @@ def create_run(
 
     job = runs_queue.enqueue(execute_regulation_run, run.id)
     run = attach_job_id(db, run=run, job_id=job.id)
+
+    create_audit_log(
+        db,
+        action="regulation_run_created",
+        entity_type="regulation_run",
+        entity_id=str(run.id),
+        actor_user_id=current_user.id,
+        request_id=getattr(request.state, "request_id", None),
+        metadata_json={
+            "project_type": run.project_type,
+            "rq_job_id": run.rq_job_id,
+        },
+    )
 
     return RunCreateResponse(
         run_id=run.id,
