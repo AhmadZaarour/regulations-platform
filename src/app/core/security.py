@@ -1,60 +1,36 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
-from typing import Any
+from typing import Any, cast
 
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from app.core.config import settings
 
-_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+ALGORITHM = "HS256"
+
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 
-def hash_password(password: str) -> Any:
-    return _pwd_context.hash(password)
+def hash_password(password: str) -> str:
+    return cast(str, pwd_context.hash(password))
 
 
-def verify_password(plain_password: str, hashed_password: str) -> Any:
-    return _pwd_context.verify(plain_password, hashed_password)
+def verify_password(plain: str, hashed: str) -> bool:
+    return cast(bool, pwd_context.verify(plain, hashed))
 
 
-def _create_token(*, subject: str, token_type: str, expires_delta: timedelta) -> Any:
-    now = datetime.now(UTC)
-    payload: dict[str, Any] = {
-        "sub": subject,
-        "type": token_type,  # "access" or "refresh"
-        "iat": int(now.timestamp()),
-        "exp": int((now + expires_delta).timestamp()),
-    }
-    return jwt.encode(payload, settings.secret_key, algorithm=settings.jwt_algorithm)
+def create_access_token(data: dict[str, Any], expires_minutes: int = 30) -> str:
+    to_encode = data.copy()
+    expire = datetime.now(UTC) + timedelta(minutes=expires_minutes)
+    to_encode.update({"exp": expire})
+    return cast(str, jwt.encode(to_encode, settings.secret_key, algorithm=ALGORITHM))
 
 
-def create_access_token(subject: str) -> Any:
-    return _create_token(
-        subject=subject,
-        token_type="access",
-        expires_delta=timedelta(minutes=settings.access_token_exp_minutes),
-    )
-
-
-def create_refresh_token(subject: str) -> Any:
-    return _create_token(
-        subject=subject,
-        token_type="refresh",
-        expires_delta=timedelta(days=settings.refresh_token_exp_days),
-    )
-
-
-def decode_token(token: str) -> Any:
-    """
-    Returns the decoded payload or raises ValueError for invalid tokens.
-    """
+def decode_access_token(token: str) -> dict[str, Any]:
     try:
-        payload = jwt.decode(token, settings.secret_key, algorithms=[settings.jwt_algorithm])
-        # minimal validation
-        if "sub" not in payload or "type" not in payload:
-            raise ValueError("Invalid token payload")
-        return payload
-    except JWTError as e:
-        raise ValueError("Invalid token") from e
+        payload = jwt.decode(token, settings.secret_key, algorithms=[ALGORITHM])
+        return cast(dict[str, Any], payload)
+    except JWTError as exc:
+        raise ValueError("Invalid token") from exc
