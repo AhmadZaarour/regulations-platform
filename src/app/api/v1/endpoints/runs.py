@@ -16,7 +16,7 @@ from app.services.run_service import attach_job_id, create_regulation_run, get_r
 router = APIRouter()
 
 
-@router.post("", response_model=RunCreateResponse)  # type: ignore[misc]
+@router.post("", response_model=RunCreateResponse)
 def create_run(
     payload: EgressStairsInput,
     request: Request,
@@ -53,7 +53,7 @@ def create_run(
     )
 
 
-@router.get("/{run_id}", response_model=RunResultResponse)  # type: ignore[misc]
+@router.get("/{run_id}", response_model=RunResultResponse)
 def read_run(
     run_id: int,
     db: Session = Depends(get_db),

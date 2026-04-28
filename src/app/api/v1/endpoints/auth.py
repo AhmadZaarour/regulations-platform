@@ -9,7 +9,7 @@ from app.services.user_service import create_user, get_user_by_email
 router = APIRouter()
 
 
-@router.post("/register")  # type: ignore[misc]
+@router.post("/register")
 def register(email: str, password: str, db: Session = Depends(get_db)) -> dict[str, str]:
     existing = get_user_by_email(db, email)
     if existing:
@@ -19,7 +19,7 @@ def register(email: str, password: str, db: Session = Depends(get_db)) -> dict[s
     return {"id": str(user.id), "email": user.email}
 
 
-@router.post("/login")  # type: ignore[misc]
+@router.post("/login")
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ) -> dict[str, str]:
