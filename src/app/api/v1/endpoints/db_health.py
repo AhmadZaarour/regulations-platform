@@ -9,7 +9,7 @@ from app.core.deps import get_db
 router = APIRouter()
 
 
-@router.get("/db-ping")  # type: ignore[misc]
+@router.get("/db-ping")
 def db_ping(db: Session = Depends(get_db)) -> dict[str, str]:
     db.execute(text("SELECT 1"))
     return {"status": "ok"}

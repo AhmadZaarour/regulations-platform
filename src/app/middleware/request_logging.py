@@ -10,7 +10,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 log = logging.getLogger("app.request")
 
 
-class RequestLoggingMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
+class RequestLoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(
         self,
         request: Request,

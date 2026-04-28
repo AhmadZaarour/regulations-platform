@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import logging
 from datetime import UTC, datetime
+from typing import cast
 
 from sqlalchemy.orm import Session
 
 from app.db.session import SessionLocal
 from app.logic.engine import run_egress_stair_engine
+from app.logic.types import ProjectInput
 from app.models.regulation_run import RegulationRun
 
 log = logging.getLogger("app.worker")
@@ -25,7 +27,7 @@ def execute_regulation_run(run_id: int) -> None:
         run.started_at = datetime.now(UTC)
         db.commit()
 
-        result = run_egress_stair_engine(run.input_data)
+        result = run_egress_stair_engine(cast(ProjectInput, run.input_data))
 
         run.result = result
         run.status = "succeeded"

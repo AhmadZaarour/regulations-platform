@@ -9,12 +9,12 @@ from app.services.queue import redis_conn, runs_queue
 router = APIRouter()
 
 
-@router.get("/health")  # type: ignore[misc]
+@router.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@router.get("/health/deep")  # type: ignore[misc]
+@router.get("/health/deep")
 def deep_health() -> dict[str, str | int]:
     db = SessionLocal()
     try:
