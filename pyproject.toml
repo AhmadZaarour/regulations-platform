@@ -6,6 +6,16 @@ dependencies = [
   "pydantic>=2.6",
   "pydantic-settings>=2.2",
   "python-dotenv>=1.0",
+  "fastapi>=0.100",
+  "starlette>=0.27",
+  "SQLAlchemy>=2.0",
+  "psycopg[binary]",
+  "alembic",
+  "rq",
+  "redis",
+  "python-jose[cryptography]",
+  "passlib[argon2]",
+  "argon2-cffi",
 ]
 
 [project.optional-dependencies]
@@ -16,6 +26,7 @@ dev = [
   "black>=24.0",
   "mypy>=1.8",
   "pre-commit>=3.6",
+  "types-redis",
 ]
 
 [tool.black]
