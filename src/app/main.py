@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi.errors import RateLimitExceeded
 from slowapi.extension import _rate_limit_exceeded_handler
+from starlette.responses import Response
 
 from app.api.health import health
 from app.api.v1.router import api_router
@@ -19,7 +20,15 @@ from app.models import user  # noqa: F401
 
 app = FastAPI(title="Regulations API")
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+def rate_limit_exception_handler(request: Request, exc: Exception) -> Response:
+    if isinstance(exc, RateLimitExceeded):
+        return _rate_limit_exceeded_handler(request, exc)
+    raise exc
+
+
+app.add_exception_handler(RateLimitExceeded, rate_limit_exception_handler)
 app.add_middleware(RequestIdMiddleware)
 app.add_middleware(RequestLoggingMiddleware)
 app.include_router(api_router, prefix="/api/v1")
