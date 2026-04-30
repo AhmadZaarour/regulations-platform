@@ -21,10 +21,12 @@ from app.models import user  # noqa: F401
 app = FastAPI(title="Regulations API")
 app.state.limiter = limiter
 
+
 def rate_limit_exception_handler(request: Request, exc: Exception) -> Response:
     if isinstance(exc, RateLimitExceeded):
         return _rate_limit_exceeded_handler(request, exc)
     raise exc
+
 
 app.add_exception_handler(RateLimitExceeded, rate_limit_exception_handler)
 app.add_middleware(RequestIdMiddleware)
