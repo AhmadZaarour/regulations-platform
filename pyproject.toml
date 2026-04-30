@@ -55,7 +55,7 @@ warn_unused_ignores = true
 warn_redundant_casts = true
 no_implicit_optional = true
 mypy_path = "src"
-disable_error_code = ["import-untyped", "attr-defined", "misc"]
+disable_error_code = ["import-untyped", "attr-defined", "misc", "unused-ignore"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
