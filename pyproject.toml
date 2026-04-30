@@ -16,6 +16,7 @@ dependencies = [
   "python-jose[cryptography]",
   "passlib[argon2]",
   "argon2-cffi",
+  "slowapi>=0.1.9",
 ]
 
 [project.optional-dependencies]

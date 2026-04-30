@@ -3,10 +3,14 @@ from __future__ import annotations
 import logging
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from slowapi.errors import RateLimitExceeded
+from slowapi.extension import _rate_limit_exceeded_handler
 
 from app.api.health import health
 from app.api.v1.router import api_router
 from app.core.logging import setup_logging
+from app.core.rate_limit import limiter
 from app.middleware.request_id import RequestIdMiddleware
 from app.middleware.request_logging import RequestLoggingMiddleware
 
@@ -14,10 +18,18 @@ from app.middleware.request_logging import RequestLoggingMiddleware
 from app.models import user  # noqa: F401
 
 app = FastAPI(title="Regulations API")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(RequestIdMiddleware)
 app.add_middleware(RequestLoggingMiddleware)
 app.include_router(api_router, prefix="/api/v1")
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 log = logging.getLogger(__name__)
 

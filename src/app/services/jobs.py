@@ -13,10 +13,22 @@ from app.models.regulation_run import RegulationRun
 
 log = logging.getLogger("app.worker")
 
+force_fail = False
+
 
 def execute_regulation_run(run_id: int) -> None:
     db: Session = SessionLocal()
-
+    if force_fail:
+        log.warning(
+            "force_fail is enabled - this run will be marked as failed", extra={"run_id": run_id}
+        )
+        run = db.get(RegulationRun, run_id)
+        if run is not None:
+            run.status = "failed"
+            run.error_message = "Forced failure for testing purposes"
+            run.finished_at = datetime.now(UTC)
+            db.commit()
+        return
     try:
         run = db.get(RegulationRun, run_id)
         if run is None:

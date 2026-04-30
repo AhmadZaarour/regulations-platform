@@ -30,3 +30,15 @@ class RunResultResponse(BaseModel):
     created_at: str | None
     started_at: str | None
     finished_at: str | None
+
+
+class RunListItem(BaseModel):
+    id: int
+    status: str
+    project_type: str
+    created_at: str | None
+    finished_at: str | None
+
+
+class RunListResponse(BaseModel):
+    items: list[RunListItem]
